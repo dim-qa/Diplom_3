@@ -10,3 +10,4 @@ random_name = ''.join(random.choice(letters) for _ in range(8))
 
 ORDER_READY_TEXT = 'Ваш заказ начали готовить'
 POP_UP_DETAIL = 'Cостав'
+WAIT_TIME = 10

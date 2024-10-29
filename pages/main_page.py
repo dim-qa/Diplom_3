@@ -1,6 +1,8 @@
 import allure
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+
+import data
 import links
 from locators.main_page_locators import MainPageLocators
 from pages.base_page import BasePage
@@ -8,48 +10,45 @@ from pages.base_page import BasePage
 
 class MainPage(BasePage):
 
-    @allure.title("switch_to_constructor")
+    @allure.step("переход по клику на «Конструктор»")
     def switch_to_constructor(self):
-        self.get_url(links.link_login)
-        element = self.driver.find_element(*MainPageLocators.CONSTRUCTOR)
-        self.driver.execute_script("arguments[0].click();", element)
+        self.get_url(links.LINK_LOGIN)
+        self.click_to_button(MainPageLocators.CONSTRUCTOR)
 
-    @allure.title("order_list")
+    @allure.step("переход по клику на «Лента заказов»")
     def order_list(self):
-        self.get_url(links.link_main)
-        element = self.driver.find_element(*MainPageLocators.ORDER_LIST)
-        self.driver.execute_script("arguments[0].click();", element)
+        self.get_url(links.LINK_MAIN)
+        self.click_to_button(MainPageLocators.ORDER_LIST)
 
-    @allure.title("pop_up_window_with_details")
+    @allure.step("если кликнуть на ингредиент, появится всплывающее окно с деталями")
     def pop_up_window_with_details(self):
-        self.get_url(links.link_main)
+        self.get_url(links.LINK_MAIN)
         self.click_to_button(MainPageLocators.R2_D3)
 
-    @allure.title("clouse_pop_up")
+    @allure.step("всплывающее окно закрывается кликом по крестику")
     def clouse_pop_up(self):
-        self.get_url(links.link_main)
+        self.get_url(links.LINK_MAIN)
         self.click_to_button(MainPageLocators.R2_D3)
-        element = self.driver.find_element(*MainPageLocators.EXIT_POP_UP)
-        self.driver.execute_script("arguments[0].click();", element)
+        self.click_to_button(MainPageLocators.EXIT_POP_UP)
 
-    @allure.title("count")
+    @allure.step("при добавлении ингредиента в заказ, увеличивается каунтер данного ингредиента")
     def count(self):
-        self.get_url(links.link_main)
+        self.get_url(links.LINK_MAIN)
         start_count = self.driver.find_element(*MainPageLocators.COUNT).text
         self.drag_and_drop(MainPageLocators.R2_D3, MainPageLocators.SPAN_DROP)
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.wait_time).until(
             lambda driver: driver.find_element(*MainPageLocators.COUNT).text != '0')
         result_count = self.driver.find_element(*MainPageLocators.COUNT).text
         return start_count, result_count
 
-    @allure.title("get_order")
+    @allure.step("залогиненный пользователь может оформить заказ")
     def get_order(self):
-        self.get_url(links.link_main)
-        WebDriverWait(self.driver, 10).until(expected_conditions.visibility_of_element_located(MainPageLocators.R2_D3_IMG))
+        self.get_url(links.LINK_MAIN)
+        WebDriverWait(self.driver, self.wait_time).until(expected_conditions.visibility_of_element_located(MainPageLocators.R2_D3_IMG))
         self.drag_and_drop(MainPageLocators.R2_D3_IMG, MainPageLocators.SPAN_DROP)
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.wait_time).until(
             lambda driver: driver.find_element(*MainPageLocators.COUNT).text != '0')
         self.click_to_button(MainPageLocators.ORDER_BUTTON)
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.wait_time).until(
             expected_conditions.visibility_of_element_located(MainPageLocators.ORDER_READY)
         )

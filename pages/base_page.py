@@ -1,15 +1,16 @@
 import time
-from time import sleep
 import allure
-from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+
+import data
 
 
 class BasePage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.wait_time = 10
 
     @allure.step("переход по ссылке")
     def get_url(self, url):
@@ -18,7 +19,8 @@ class BasePage:
     @allure.step("клик по кнопке")
     def click_to_button(self, locator):
         element = self.driver.find_element(*locator)
-        element.click()
+        self.driver.execute_script("arguments[0].click();", element)
+
 
     @allure.step("скролит до элемента")
     def scroll_to_down(self, locator):
@@ -28,7 +30,7 @@ class BasePage:
 
     @allure.step("ожидание")
     def wait_an_element(self, locator):
-        WebDriverWait(self.driver, 5).until(
+        WebDriverWait(self.driver, self.wait_time).until(
             expected_conditions.visibility_of_element_located(locator))
         element = self.driver.find_element(*locator)
         return element
@@ -54,7 +56,7 @@ class BasePage:
     def switch(self, logo, equals):
         self.click_to_button(logo)
         self.driver.switch_to.window(self.driver.window_handles[-1])
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, self.wait_time).until(
             expected_conditions.url_to_be(equals))
         new_page = self.url()
         self.driver.close()

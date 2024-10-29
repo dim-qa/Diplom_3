@@ -1,7 +1,8 @@
 import allure
-from selenium.webdriver.ie.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+
+import data
 import links
 from locators.profile_locators import ProfileLocators
 from pages.base_page import BasePage
@@ -10,16 +11,14 @@ from pages.base_page import BasePage
 class Profile(BasePage):
 
 
-    @allure.title("open_order_history")
+    @allure.step("переход в раздел «История заказов»")
     def open_order_history(self):
-        WebDriverWait(self.driver, 10).until(expected_conditions.url_to_be(links.link_profile))
-        element = self.driver.find_element(*ProfileLocators.ORDER_HISTORY)
-        self.driver.execute_script("arguments[0].click();", element)
-        WebDriverWait(self.driver, 10).until(expected_conditions.url_to_be(links.order_history))
+        WebDriverWait(self.driver, self.wait_time).until(expected_conditions.url_to_be(links.LINK_PROFILE))
+        self.click_to_button(ProfileLocators.ORDER_HISTORY)
+        WebDriverWait(self.driver, self.wait_time).until(expected_conditions.url_to_be(links.ORDER_HISTORY))
 
-    @allure.title("exit_profile")
+    @allure.step("выход из аккаунта")
     def exit_profile(self):
-        WebDriverWait(self.driver, 10).until(expected_conditions.url_to_be(links.link_profile))
-        element = self.driver.find_element(*ProfileLocators.EXIT_BUTTON)
-        self.driver.execute_script("arguments[0].click();", element)
-        WebDriverWait(self.driver, 10).until(expected_conditions.url_to_be(links.link_login))
+        WebDriverWait(self.driver, self.wait_time).until(expected_conditions.url_to_be(links.LINK_PROFILE))
+        self.click_to_button(ProfileLocators.EXIT_BUTTON)
+        WebDriverWait(self.driver, self.wait_time).until(expected_conditions.url_to_be(links.LINK_LOGIN))

@@ -2,17 +2,13 @@ import random
 import string
 import pytest
 import requests
-from allure_commons import fixture
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
 import data
 import links
-from data import email
 from locators.login_locators import LoginLocators
 from locators.main_page_locators import MainPageLocators
 from pages.profile_page import Profile
@@ -28,9 +24,9 @@ def driver(request):
     elif browser_name == 'firefox':
         options = webdriver.FirefoxOptions()
         options.binary_location = "/opt/firefox/firefox"
-        driver = webdriver.Firefox(service=FirefoxService(executable_path=GeckoDriverManager().install()), options=options)
+        driver = webdriver.Firefox(options=options)
+        # Менеджер убрал, потому что, из-за частого обращения в API GitHub для скачивания geckodriver выходит ошибка. Либо просит использовать GH_TOKEN токен.
         driver.set_window_size(1920, 1080)
-        # driver.implicitly_wait(10)
     else:
         ValueError("Can't create instatnce for this browser param")
     yield driver
@@ -42,7 +38,7 @@ def setup():
     email = f"{(''.join(random.choice(letters) for _ in range(8))) + '@yandex.ru'}"
     password = ''.join(random.choice(letters) for _ in range(8))
     name = ''.join(random.choice(letters) for _ in range(8))
-    response = requests.post(f"{links.link_main}/api/auth/register", json={
+    response = requests.post(f"{links.LINK_MAIN}/api/auth/register", json={
         "email": email,
         "password": password,
         "name": name
@@ -52,16 +48,16 @@ def setup():
             'password': password,
             'accessToken': response.json()['accessToken']
             }
-    requests.delete(f"{links.link_main}/api/auth/user")
+    requests.delete(f"{links.LINK_MAIN}/api/auth/user")
 
 @pytest.fixture()
 def login_to_profile(driver, setup):
     profile = Profile(driver)
-    profile.get_url(links.link_login)
+    profile.get_url(links.LINK_LOGIN)
     profile.set_input(LoginLocators.MAIL_INNER, setup['email'])
     profile.set_input(LoginLocators.PASSWORD_INNER, setup['password'])
     profile.click_to_button(LoginLocators.BUTTON_INNER)
-    WebDriverWait(driver, 10).until(expected_conditions.url_to_be(links.link_main))
+    WebDriverWait(driver, data.WAIT_TIME).until(expected_conditions.url_to_be(links.LINK_MAIN))
     profile.click_to_button(MainPageLocators.PROFILE)
-    WebDriverWait(driver, 10).until(expected_conditions.url_to_be(links.link_profile))
+    WebDriverWait(driver, data.WAIT_TIME).until(expected_conditions.url_to_be(links.LINK_PROFILE))
     return profile
